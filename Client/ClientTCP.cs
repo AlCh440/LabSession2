@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.Threading;
 using TMPro;
-using UnityEngine.tvOS;
+//using UnityEngine.tvOS;
 
 public class ClientTCP : MonoBehaviour
 {
@@ -41,10 +41,17 @@ public class ClientTCP : MonoBehaviour
         //When calling connect and succeeding, our server socket will create a
         //connection between this endpoint and the server's endpoint
 
-        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("fe80::2321:280f:f29:d510%17"), 9050);
+        Debug.Log("connecting to server");
+        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9050);
+
+        server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         server.Connect(ipep);
 
-        if (server.Connected) { Debug.Log("server connected"); }
+
+        if (server.Connected) { 
+            Debug.Log("server connected"); 
+            clientText = clientText + "\n" + "server connection established";
+            }
 
         //TO DO 4
         //With an established connection, we want to send a message so the server acknowledges us
@@ -66,6 +73,7 @@ public class ClientTCP : MonoBehaviour
         //Using the socket that stores the connection between the 2 endpoints, call the TCP send function with
         //an encoded message
         byte[] data = new byte[1024];
+        Debug.Log("sending welcome");
         data = Encoding.ASCII.GetBytes("welcome");
         server.Send(data);
     }

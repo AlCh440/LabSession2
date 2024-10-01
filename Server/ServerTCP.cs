@@ -23,6 +23,7 @@ public class ServerTCP : MonoBehaviour
     void Start()
     {
         UItext = UItextObj.GetComponent<TextMeshProUGUI>();
+        Debug.Log("Server started");
 
     }
 
@@ -37,6 +38,7 @@ public class ServerTCP : MonoBehaviour
     public void startServer()
     {
         serverText = "Starting TCP Server...";
+        Debug.Log("initializing startserver()");
 
         //TO DO 1
         //Create and bind the socket
@@ -45,9 +47,13 @@ public class ServerTCP : MonoBehaviour
 
         IPEndPoint localEp = new IPEndPoint(IPAddress.Any, 9050);
 
+        Debug.Log("IPEndpointworked");
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.Bind(localEp);
         socket.Listen(10);
+
+        Debug.Log("Socket worked");
 
 
         //TO DO 3
@@ -55,16 +61,19 @@ public class ServerTCP : MonoBehaviour
         CheckNewConnections();
 
 
-        mainThread = new Thread(CheckNewConnections);
-        mainThread.Start();
+       //mainThread = new Thread(CheckNewConnections);
+        //mainThread.Start();
     }
 
     void CheckNewConnections()
     {
-        while(true)
-        {
+        //while(true)
+       // {
+            int recv = 0;
+            Debug.Log("starting checkNewConnections()");
             User newUser = new User();
             newUser.name = "";
+
             //TO DO 3
             //TCP makes it so easy to manage conections, so we are going
             //to put it to use
@@ -75,20 +84,22 @@ public class ServerTCP : MonoBehaviour
             //If you want to check their ports and adresses, you can acces
             //the socket's RemoteEndpoint and LocalEndPoint
             //try printing them on the console
+
+            Debug.Log("starting socket.Accept()");
             
             newUser.socket = socket.Accept();
-           
 
+            Debug.Log("starting clientEP");
             IPEndPoint clientep = (IPEndPoint)socket.RemoteEndPoint;
-            serverText = serverText + "\n"+ "Connected with " + clientep.Address.ToString() + " at port " + clientep.Port.ToString();
+
 
             //TO DO 5
             //For every client, we call a new thread to receive their messages. 
             //Here we have to send our user as a parameter so we can use it's socket.
-
+            Debug.Log("starting newconnection");
             Thread newConnection = new Thread(() => Receive(newUser));
             newConnection.Start();
-        }
+        //}
         //This users could be stored in the future on a list
         //in case you want to manage your connections
 
@@ -99,6 +110,8 @@ public class ServerTCP : MonoBehaviour
         //TO DO 5
         //Create an infinite loop to start receiving messages for this user
         //You'll have to use the socket function receive to be able to get them.
+        Debug.Log("starting recieve function");
+
         byte[] data = new byte[1024];
         int recv = 0;
 
@@ -109,9 +122,13 @@ public class ServerTCP : MonoBehaviour
             recv = user.socket.Receive(data);
 
             if (recv == 0)
+            {
+                Debug.Log("recv was null");
                 break;
+            }
             else
             {
+                Debug.Log("recv recieved: " + Encoding.ASCII.GetString(data, 0, recv));
                 serverText = serverText + "\n" + Encoding.ASCII.GetString(data, 0, recv);
             }
 
@@ -129,6 +146,7 @@ public class ServerTCP : MonoBehaviour
     void Send(User user)
     {
         byte[] data = new byte[1024];
+        Debug.Log("sending ping");
         data = Encoding.ASCII.GetBytes("ping");
         user.socket.Send(data);
     }
