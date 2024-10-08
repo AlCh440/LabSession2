@@ -45,13 +45,14 @@ public class ServerTCP : MonoBehaviour
         //Any IP that wants to connect to the port 9050 with TCP, will communicate with this socket
         //Don't forget to set the socket in listening mode
 
-        IPEndPoint localEp = new IPEndPoint(IPAddress.Any, 9050);
+        IPEndPoint localEp = new IPEndPoint(IPAddress.Any, 9050); 
+        // crees un endpoint (explicació a ClientTCP.cs) sense cap IP ja que el server vol escoltar, quan rebi un misatge ja tindra tota aquesta info
 
         Debug.Log("IPEndpointworked");
 
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); // creacio d'un socket, explicació a ClientTCP.cs
         socket.Bind(localEp);
-        socket.Listen(10);
+        socket.Listen(10); // Aquestes dos funcions serveixen per posar el servidor a escoltar si algu envia un misatge a aquesta direccio ho rebra
 
         Debug.Log("Socket worked");
 
@@ -87,7 +88,8 @@ public class ServerTCP : MonoBehaviour
 
             Debug.Log("starting socket.Accept()");
             
-            newUser.socket = socket.Accept();
+            newUser.socket = socket.Accept(); // acceptar la nova conecció amb el client, ell la demana i aqui s'accepta
+            // aqui es guarda la info del client
 
             Debug.Log("starting clientEP");
             IPEndPoint clientep = (IPEndPoint)socket.RemoteEndPoint;
@@ -97,7 +99,7 @@ public class ServerTCP : MonoBehaviour
             //For every client, we call a new thread to receive their messages. 
             //Here we have to send our user as a parameter so we can use it's socket.
             Debug.Log("starting newconnection");
-            Thread newConnection = new Thread(() => Receive(newUser));
+            Thread newConnection = new Thread(() => Receive(newUser)); // Recieve() call en una thread
             newConnection.Start();
         //}
         //This users could be stored in the future on a list
@@ -119,23 +121,23 @@ public class ServerTCP : MonoBehaviour
         {
             data = new byte[1024];
             
-            recv = user.socket.Receive(data);
+            recv = user.socket.Receive(data); // aqui es rep el misatge
 
             if (recv == 0)
             {
-                Debug.Log("recv was null");
+                Debug.Log("recv was null"); // per si hi han errors
                 break;
             }
             else
             {
                 Debug.Log("recv recieved: " + Encoding.ASCII.GetString(data, 0, recv));
-                serverText = serverText + "\n" + Encoding.ASCII.GetString(data, 0, recv);
+                serverText = serverText + "\n" + Encoding.ASCII.GetString(data, 0, recv); // printing mesage
             }
 
             //TO DO 6
             //We'll send a ping back every time a message is received
             //Start another thread to send a message, same parameters as this one.
-            Thread answer = new Thread(() => Send(user));
+            Thread answer = new Thread(() => Send(user)); // creem una thread per enviar una resposta, user s'ha guardat abans i tenim el EndPoint del client
             answer.Start();
         }
     }
@@ -148,6 +150,6 @@ public class ServerTCP : MonoBehaviour
         byte[] data = new byte[1024];
         Debug.Log("sending ping");
         data = Encoding.ASCII.GetBytes("ping");
-        user.socket.Send(data);
+        user.socket.Send(data); // funcio per enviar un ping
     }
 }

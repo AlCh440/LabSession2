@@ -42,29 +42,36 @@ public class ClientTCP : MonoBehaviour
         //connection between this endpoint and the server's endpoint
 
         Debug.Log("connecting to server");
-        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9050);
+        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9050); 
+        // Aqui crees un Endpoint, es com el final de una conexio, en aquest cas es la IP del servidor on s'ha de conectar 
+        // 127.0.0.1 es la adresa local, el teu ordinador, si cambies aquesta a una altre ip et podras conectar al ordinador que vulguis
 
         server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         server.Connect(ipep);
+        // crees un socket (un EndPoint d'aqui, del client) i poses les definicions que vulguis, 
+        // SocketType.Stream i ProtocolType.Tcp son les definicions de TCP, al UDP cambien
+        // Si el servidor esta obert server.Connect hauria de funcionar
 
 
         if (server.Connected) { 
             Debug.Log("server connected"); 
             clientText = clientText + "\n" + "server connection established";
-            }
+        } // Checkejant que tot estigui be
 
         //TO DO 4
         //With an established connection, we want to send a message so the server acknowledges us
         //Start the Send Thread
         
 
-        Thread sendThread = new Thread(Send);
+        Thread sendThread = new Thread(Send); //iniciar funcio Send
         sendThread.Start();
 
         //TO DO 7
         //If the client wants to receive messages, it will have to start another thread. Call Receive()
-        Thread receiveThread = new Thread(Receive);
+        Thread receiveThread = new Thread(Receive); 
         receiveThread.Start();
+        // un cop enviat el misatge esperes una resposta
+        // recorda que tot aixo es fa en una thread per no colapsar el joc ni el codi, aixo es fa a part
 
     }
     void Send()
@@ -75,7 +82,7 @@ public class ClientTCP : MonoBehaviour
         byte[] data = new byte[1024];
         Debug.Log("sending welcome");
         data = Encoding.ASCII.GetBytes("welcome");
-        server.Send(data);
+        server.Send(data); // prepares data i la envies utilitzant el socket "server", el codi no hauria d'arribar aqui si no s'ha fet la coneccio
     }
 
     //TO DO 7
@@ -84,7 +91,7 @@ public class ClientTCP : MonoBehaviour
     {
         byte[] data = new byte[1024];
         int recv = 0;
-        recv = server.Receive(data);
+        recv = server.Receive(data); //funcio per rebre la data de un socket en especific (server), basicament es com escoltar
 
         clientText = clientText += "\n" + Encoding.ASCII.GetString(data, 0, recv);
     }
