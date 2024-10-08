@@ -38,19 +38,35 @@ public class ClientUDP : MonoBehaviour
         //Again, initialize the socket
         //IPEndPoint ipep = new IPEndPoint();
 
-        //socket = new Socket();
+        
 
+        Debug.Log("connecting to server");
+        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9050);
+
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        
         //TO DO 2.1 
         //Send the Handshake to the server's endpoint.
         //This time, our UDP socket doesn't have it, so we have to pass it
         //as a parameter on it's SendTo() method
 
+
+        
+
+        
+
         byte[] data = new byte[1024];
-        string handshake = "Hello World";
+        string handshake = "Did you know that pelicans have three stomach?";
+        Debug.Log("Sending message: " + handshake);
+
+
+        socket.SendTo(data = Encoding.ASCII.GetBytes("welcome"), 0, SocketFlags.None, ipep);
   
         //TO DO 5
         //We'll wait for a server response,
         //so you can already start the receive thread
+
+        
         Thread receive = new Thread(Receive);
         receive.Start();
 
@@ -61,13 +77,16 @@ public class ClientUDP : MonoBehaviour
     //since we already know it's the server who's communicating with us
     void Receive()
     {
-        IPEndPoint sender;
-        EndPoint Remote;
-        byte[] data = new byte[1024];
-        //int recv = socket.ReceiveFrom(data, ref Remote);
+        Debug.Log("recieving message");
+        IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+        EndPoint Remote = (EndPoint)(sender);
 
-        //clientText = ("Message received from {0}: " + Remote.ToString());
-        //clientText = clientText += "\n" + Encoding.ASCII.GetString(data, 0, recv);
+        byte[] data = new byte[1024];
+        int recv = socket.ReceiveFrom(data, ref Remote);
+        Debug.Log("Message received from {0}: " + Remote.ToString());
+
+        clientText = clientText += "\n" + ("Message received from {0}: " + Remote.ToString());
+        clientText = clientText += "\n" + Encoding.ASCII.GetString(data, 0, recv);
 
     }
 
